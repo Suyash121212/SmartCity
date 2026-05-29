@@ -104,6 +104,7 @@ const createAuthority = async (req, res) => {
         role: 'AUTHORITY', department,
         cityId, zoneId,
         profileComplete: true,
+        mustChangePassword : true
       },
       select: {
         id: true, name: true, email: true, role: true,

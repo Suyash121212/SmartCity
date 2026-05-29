@@ -10,7 +10,7 @@ import {
 } from 'lucide-react'
 
 import IssueCard from '../components/IssueCard/IssueCard'
-
+import {Link} from 'react-router-dom'
 
 const sampleIssues = [
   {
@@ -135,14 +135,19 @@ export default function Home() {
 
               <div className="flex flex-wrap gap-4">
 
+                <Link to ='/report'  >
                 <button className="px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 transition-all font-semibold flex items-center gap-2">
                   Report an Issue
                   <ArrowRight size={18} />
                 </button>
+                </Link>
+                
 
+              <Link to="/map">
                 <button className="px-7 py-3 rounded-xl border border-gray-700 hover:border-blue-500 hover:bg-blue-500/5 transition-all font-semibold">
                   View Issue Map
                 </button>
+                </Link>
 
               </div>
             </motion.div>
@@ -303,17 +308,18 @@ export default function Home() {
                 <h2 className="text-3xl font-black">
                   Sample Issue Map
                 </h2>
-
+                <Link to="/map">
                 <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">
                   View Full Map
                 </button>
+                </Link>
 
               </div>
 
               <div className="relative overflow-hidden rounded-3xl border border-white/10 h-full min-h-[420px]">
 
                 <img
-                  src="https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1200&auto=format&fit=crop"
+                  src="/images/static_map.png"
                   alt="Map"
                   className="w-full h-full object-cover"
                 />

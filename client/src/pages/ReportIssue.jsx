@@ -271,7 +271,8 @@ export default function ReportIssue() {
                 onClick={() => cameraInputRef.current.click()}
                 className="
                         inline-flex items-center gap-3
-                        px-6 py-3
+                        
+                        px-4 py-2
                         rounded-2xl
                         bg-gradient-to-r
                         from-blue-600

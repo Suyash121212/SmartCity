@@ -15,7 +15,7 @@ const STATUSES = ['ALL', 'REPORTED', 'IN_REVIEW', 'IN_PROGRESS', 'RESOLVED', 'RE
 const STATUS_TRANSITIONS = ['IN_REVIEW', 'IN_PROGRESS', 'RESOLVED', 'REJECTED']
 
 export default function AuthDashboard() {
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
   const [issues, setIssues] = useState([])
   const [loading, setLoading] = useState(true)
   const [status, setStatus] = useState('ALL')
@@ -26,6 +26,12 @@ export default function AuthDashboard() {
   const [updating, setUpdating] = useState(false)
   const [stats, setStats] = useState({})
 
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
+
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
   const fetchIssues = async () => {
     setLoading(true)
     try {
@@ -34,7 +40,7 @@ export default function AuthDashboard() {
       if (search) params.search = search
       const res = await api.get('/issues', { params })
       setIssues(res.data.data)
-    } catch {}
+    } catch { }
     finally { setLoading(false) }
   }
 
@@ -48,7 +54,7 @@ export default function AuthDashboard() {
         pending: all.filter(i => ['REPORTED', 'IN_REVIEW'].includes(i.status)).length,
         critical: all.filter(i => i.priority === 'CRITICAL' && i.status !== 'RESOLVED').length,
       })
-    } catch {}
+    } catch { }
   }
 
   useEffect(() => { fetchIssues() }, [status, search])
@@ -71,6 +77,53 @@ export default function AuthDashboard() {
     }
   }
 
+
+  const handlePasswordChange = async (e) => {
+  e.preventDefault()
+
+  if (newPassword !== confirmPassword) {
+    toast.error('Passwords do not match')
+    return
+  }
+
+  try {
+    await api.put('/auth/change-password', {
+      currentPassword,
+      newPassword
+    })
+
+    await refreshUser()
+
+    toast.success('Password changed successfully')
+
+    setShowPasswordModal(false)
+
+    setCurrentPassword('')
+    setNewPassword('')
+    setConfirmPassword('')
+  } catch (err) {
+    toast.error(
+      err.response?.data?.message ||
+      'Failed to change password'
+    )
+  }
+}
+
+
+
+  
+  useEffect(() => {
+   
+    if (
+      user?.role === 'AUTHORITY' &&
+      user?.mustChangePassword
+    ) {
+      setShowPasswordModal(true)
+    }
+    // setShowPasswordModal(true)
+  }, [user])
+
+  
   return (
     <div className="min-h-screen bg-gray-950 pt-20 pb-12">
       <div className="max-w-7xl mx-auto px-4">
@@ -109,9 +162,8 @@ export default function AuthDashboard() {
           <div className="flex gap-2 overflow-x-auto">
             {STATUSES.map(s => (
               <button key={s} onClick={() => setStatus(s)}
-                className={`px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-                  status === s ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'
-                }`}>
+                className={`px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${status === s ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'
+                  }`}>
                 {s === 'ALL' ? 'All' : s.replace('_', ' ')}
               </button>
             ))}
@@ -197,9 +249,8 @@ export default function AuthDashboard() {
               <div className="grid grid-cols-2 gap-2">
                 {STATUS_TRANSITIONS.map(s => (
                   <button key={s} onClick={() => setUpdateForm(f => ({ ...f, status: s }))}
-                    className={`py-2 px-3 rounded-lg text-xs font-medium transition-all ${
-                      updateForm.status === s ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'
-                    }`}>
+                    className={`py-2 px-3 rounded-lg text-xs font-medium transition-all ${updateForm.status === s ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'
+                      }`}>
                     {s.replace('_', ' ')}
                   </button>
                 ))}
@@ -228,6 +279,92 @@ export default function AuthDashboard() {
           </div>
         )}
       </Modal>
+{showPasswordModal && (
+  <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center px-4">
+    <div className="w-full max-w-md bg-gray-900 border border-gray-700 rounded-3xl shadow-2xl overflow-hidden">
+
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-6">
+        <h2 className="text-2xl font-bold text-white">
+          Change Password
+        </h2>
+        <p className="text-blue-100 text-sm mt-1">
+          Security verification required
+        </p>
+      </div>
+
+      {/* Body */}
+      <div className="p-6">
+        <div className="mb-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+          <p className="text-sm text-gray-300">
+            Your account was created by an administrator.
+            For security reasons, please create your own password before continuing.
+          </p>
+        </div>
+
+        <form
+          onSubmit={handlePasswordChange}
+          className="space-y-4"
+        >
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Current Password
+            </label>
+            <input
+              type="password"
+              placeholder="Enter current password"
+              value={currentPassword}
+              onChange={(e) =>
+                setCurrentPassword(e.target.value)
+              }
+              className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              New Password
+            </label>
+            <input
+              type="password"
+              placeholder="Enter new password"
+              value={newPassword}
+              onChange={(e) =>
+                setNewPassword(e.target.value)
+              }
+              className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              placeholder="Confirm new password"
+              value={confirmPassword}
+              onChange={(e) =>
+                setConfirmPassword(e.target.value)
+              }
+              className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full mt-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
+          >
+            Update Password
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   )
 }

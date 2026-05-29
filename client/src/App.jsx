@@ -99,6 +99,8 @@ function AppRoutes() {
         {/* Admin only */}
         <Route path="/admin" element={<ProtectedRoute roles={['ADMIN']}><AdminPanel /></ProtectedRoute>} />
 
+      
+
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

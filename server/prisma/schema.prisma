@@ -84,6 +84,7 @@ model User {
   comments      Comment[]
   upvotes       Upvote[]
   statusUpdates StatusUpdate[]
+  mustChangePassword Boolean @default(false)
 }
 
 model Issue {

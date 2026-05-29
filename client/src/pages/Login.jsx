@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState} from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { MapPin, Eye, EyeOff, Loader2 } from 'lucide-react'
@@ -15,15 +15,38 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
+
     try {
       const user = await login(form.email, form.password)
+
       toast.success(`Welcome back, ${user.name}!`)
-      if (user.role === 'ADMIN') navigate('/admin')
-      else if (user.role === 'AUTHORITY') navigate('/dashboard')
-      else if (!user.profileComplete) navigate('/complete-profile')
-      else navigate('/')
+
+      // Force authority to change password
+      if (
+        user.role === 'AUTHORITY' &&
+        user.mustChangePassword
+      ) {
+        {
+          showPasswordModal && (
+            <ChangePasswordModal />
+          )
+        }
+        return
+      }
+
+      if (user.role === 'ADMIN') {
+        navigate('/admin')
+      } else if (user.role === 'AUTHORITY') {
+        navigate('/dashboard')
+      } else if (!user.profileComplete) {
+        navigate('/complete-profile')
+      } else {
+        navigate('/')
+      }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed')
+      toast.error(
+        err.response?.data?.message || 'Login failed'
+      )
     } finally {
       setLoading(false)
     }
@@ -110,21 +133,21 @@ export default function Login() {
 
           <div className="mt-5 border-t border-gray-800 pt-4 text-center">
 
-  <p className="text-sm text-gray-500">
-    Citizen user?{' '}
-    <Link
-      to="/register"
-      className="text-blue-400 hover:text-blue-300 font-medium"
-    >
-      Create Account
-    </Link>
-  </p>
+            <p className="text-sm text-gray-500">
+              Citizen user?{' '}
+              <Link
+                to="/register"
+                className="text-blue-400 hover:text-blue-300 font-medium"
+              >
+                Create Account
+              </Link>
+            </p>
 
-  <p className="text-xs text-gray-600 mt-2">
-    Authority and Super Admin accounts can only sign in.
-  </p>
+            <p className="text-xs text-gray-600 mt-2">
+              Authority and Super Admin accounts can only sign in.
+            </p>
 
-</div>
+          </div>
         </div>
       </motion.div>
     </div>

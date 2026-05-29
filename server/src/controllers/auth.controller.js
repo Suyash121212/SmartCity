@@ -18,7 +18,7 @@ const generateTokens = (userId, role) => {
 
 const USER_SELECT = {
   id: true, name: true, email: true, role: true,
-  profileComplete: true, department: true, avatar: true, createdAt: true,
+  profileComplete: true, department: true, avatar: true, createdAt: true,mustChangePassword: true,
   city: { select: { id: true, name: true } },
   zone: { select: { id: true, name: true } },
 };
@@ -59,15 +59,16 @@ const login = async (req, res) => {
         zone: { select: { id: true, name: true } },
       },
     });
-    //checking purpose
-    console.log("USER FOUND:", !!user);
-    console.log("DB PASSWORD:", user?.password);
-    const isValidity = await bcrypt.compare(password, user.password);
-
-    console.log("PASSWORD VALID:", isValidity);
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
+    //checking purpose
+    // console.log("USER FOUND:", !!user);
+    // console.log("DB PASSWORD:", user?.password);
+    const isValidity = await bcrypt.compare(password, user.password);
+
+    // console.log("PASSWORD VALID:", isValidity);
+    
 
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
@@ -135,4 +136,57 @@ const logout = async (req, res) => {
   }
 };
 
-module.exports = { register, login, refresh, getMe, logout };
+
+// change password for the authorities
+
+
+const changePassword = async (req, res) => {
+  try {
+    const userId = req.user.id
+
+    const {
+      currentPassword,
+      newPassword
+    } = req.body
+
+    const user =
+      await prisma.user.findUnique({
+        where: { id: userId }
+      })
+
+    const isMatch =
+      await bcrypt.compare(
+        currentPassword,
+        user.password
+      )
+
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Current password incorrect"
+      })
+    }
+
+    const hashedPassword =
+      await bcrypt.hash(newPassword, 10)
+
+    await prisma.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        password: hashedPassword,
+        mustChangePassword: false
+      }
+    })
+
+    res.json({
+      message:
+        "Password changed successfully"
+    })
+  } catch (error) {
+    res.status(500).json({
+      message: error.message
+    })
+  }
+}
+module.exports = { register, login, refresh, getMe, logout , changePassword};
