@@ -99,7 +99,6 @@ const stats = [
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#020817] text-white">
-
       {/* HERO SECTION */}
       <section className="relative overflow-hidden border-b border-white/5">
 

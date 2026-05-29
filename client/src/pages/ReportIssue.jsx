@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useDropzone } from 'react-dropzone'
-import { Upload, X, Sparkles, MapPin, AlertCircle, CheckCircle2, Loader2, Wand2 } from 'lucide-react'
+import { Upload, X, Sparkles, MapPin, AlertCircle, CheckCircle2, Loader2, Wand2, Camera } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../lib/api'
 import LocationPicker from '../components/Map/LocationPicker'
@@ -31,6 +31,8 @@ export default function ReportIssue() {
   // image selection
   const [selectedImage, setSelectedImage] = useState(null);
 
+  //camera input
+  const cameraInputRef = useRef(null);
   // Listen for job progress
   useState(() => {
     if (!socket) return
@@ -39,6 +41,7 @@ export default function ReportIssue() {
     })
     return () => socket?.off('job:progress')
   })
+
 
   const onDrop = useCallback(async (files) => {
     const file = files[0]
@@ -50,6 +53,16 @@ export default function ReportIssue() {
     setAiResult(null)
     setSelectedImage(file);
   });
+
+  // image capcure
+  const handleCameraCapture = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    setPhotoPreview(URL.createObjectURL(file));
+    setSelectedImage(file);
+  };
 
   //   try {
   //     // Upload to Cloudinary + run Gemini Vision in one call
@@ -172,7 +185,7 @@ export default function ReportIssue() {
       formData.append('lat', location.lat)
       formData.append('lng', location.lng)
       // Pass the already-uploaded Cloudinary URL
-      formData.append("photo",selectedImage);
+      formData.append("photo", selectedImage);
       // if (photoUrl) formData.append('photoUrl', photoUrl)
       if (aiResult) formData.append('aiAnalysis', JSON.stringify(aiResult))
 
@@ -220,7 +233,9 @@ export default function ReportIssue() {
     )
   }
 
+
   return (
+
     <div className="min-h-screen bg-gray-950 pt-20 pb-12">
       <div className="max-w-2xl mx-auto px-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -241,6 +256,39 @@ export default function ReportIssue() {
                 <Upload size={14} className="text-blue-400" />
                 Photo <span className="text-blue-400 text-xs">(AI auto-fills form on upload)</span>
               </label>
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                ref={cameraInputRef}
+                className="hidden"
+                onChange={handleCameraCapture}
+              />
+
+              {/* camera button */}
+              <button
+                type="button"
+                onClick={() => cameraInputRef.current.click()}
+                className="
+                        inline-flex items-center gap-3
+                        px-6 py-3
+                        rounded-2xl
+                        bg-gradient-to-r
+                        from-blue-600
+                        to-cyan-500
+                        text-white
+                        font-semibold
+                        shadow-lg
+                        hover:shadow-blue-500/25
+                        hover:scale-105
+                        transition-all
+                      "
+              >
+                <div className="p-1 rounded-full bg-white/20">
+                  <Camera size={18} />
+                </div>
+                Take Photo
+              </button>
 
               <AnimatePresence mode="wait">
                 {photoPreview ? (
@@ -252,6 +300,8 @@ export default function ReportIssue() {
                   >
                     <img src={photoPreview} alt="Preview" className="w-full h-52 object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+
+
 
                     {/* AI analyzing overlay */}
                     {analyzing && (
