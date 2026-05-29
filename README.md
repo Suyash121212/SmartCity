@@ -6,7 +6,7 @@ A full-stack civic tech platform where citizens report local issues (potholes, b
 
 | Feature | Tech | Impact |
 |---|---|---|
-| AI Vision Photo Detection | OpenAI GPT-4o | Auto-fills issue type & severity from photo |
+| AI Vision Photo Detection | Google Gemini | Auto-fills issue type & severity from photo |
 | Real-Time Feed & Notifications | Socket.io | Live updates, no refresh needed |
 | Role-Based Auth | JWT + bcrypt | Citizen / Authority / Admin |
 | AI Auto-Categorization | GPT-4o-mini | Text-based triage & routing |
