@@ -6,14 +6,14 @@ A full-stack civic tech platform where citizens report local issues (potholes, b
 
 | Feature | Tech | Impact |
 |---|---|---|
-| AI Vision Photo Detection | OpenAI GPT-4o | Auto-fills issue type & severity from photo |
+| AI Vision Photo Detection | Google Gemini | Auto-fills issue type & severity from photo |
 | Real-Time Feed & Notifications | Socket.io | Live updates, no refresh needed |
 | Role-Based Auth | JWT + bcrypt | Citizen / Authority / Admin |
-| AI Auto-Categorization | GPT-4o-mini | Text-based triage & routing |
+| AI Auto-Categorization | gemini-3.5 flash | Text-based triage & routing |
 | Background Job Queue | BullMQ + Redis | Async AI processing, instant API response |
 | Redis Caching | ioredis | ~60% DB load reduction |
-| Sentiment Analysis | OpenAI | Auto-escalation on frustrated comments |
-| AI PDF Reports | PDFKit + OpenAI | Downloadable resolution reports |
+| Sentiment Analysis | Gemini | Auto-escalation on frustrated comments |
+| AI PDF Reports | PDFKit + Gemini | Downloadable resolution reports |
 | Interactive Maps | Leaflet + OpenStreetMap | GPS pin, issue markers, heatmap |
 
 ## 🛠️ Tech Stack
@@ -23,7 +23,7 @@ A full-stack civic tech platform where citizens report local issues (potholes, b
 - **Database**: PostgreSQL + Prisma ORM
 - **Cache/Queue**: Redis + BullMQ
 - **Real-Time**: Socket.io
-- **AI**: OpenAI API (gpt-4o + gpt-4o-mini)
+- **AI**: Google Gemini API (gemini-3.5-flash)
 - **Storage**: Cloudinary
 - **Maps**: Leaflet.js + OpenStreetMap
 
@@ -32,7 +32,7 @@ A full-stack civic tech platform where citizens report local issues (potholes, b
 ### Prerequisites
 - Node.js 18+
 - Docker Desktop (for PostgreSQL + Redis)
-- OpenAI API key
+- Gemini API key
 - Cloudinary account (free tier)
 
 ### 1. Start Database & Redis
