@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CITIZEN
+  AUTHORITY
+  ADMIN
+}
+
+enum Category {
+  ROAD
+  SANITATION
+  WATER
+  ELECTRICITY
+  OTHER
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum Status {
+  REPORTED
+  IN_REVIEW
+  IN_PROGRESS
+  RESOLVED
+  REJECTED
+}
+
+enum Sentiment {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+  FRUSTRATED
+}
+
+model City {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  zones     Zone[]
+  users     User[]
+  issues    Issue[]
+}
+
+model Zone {
+  id        String   @id @default(uuid())
+  name      String
+  cityId    String
+  city      City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  users     User[]
+  issues    Issue[]
+
+  @@unique([cityId, name])
+}
+
+model User {
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  password      String
+  role          Role           @default(CITIZEN)
+  cityId        String?
+  city          City?          @relation(fields: [cityId], references: [id])
+  zoneId        String?
+  zone          Zone?          @relation(fields: [zoneId], references: [id])
+  department    String?
+  avatar        String?
+  refreshToken  String?
+  profileComplete Boolean      @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  issues        Issue[]
+  comments      Comment[]
+  upvotes       Upvote[]
+  statusUpdates StatusUpdate[]
+}
+
+model Issue {
+  id           String         @id @default(uuid())
+  title        String
+  description  String
+  category     Category
+  priority     Priority       @default(LOW)
+  status       Status         @default(REPORTED)
+  photoUrl     String?
+  lat          Float
+  lng          Float
+  aiAnalysis   Json?
+  upvoteCount  Int            @default(0)
+  userId       String
+  user         User           @relation(fields: [userId], references: [id])
+  cityId       String?
+  city         City?          @relation(fields: [cityId], references: [id])
+  zoneId       String?
+  zone         Zone?          @relation(fields: [zoneId], references: [id])
+  assignedToId String?
+  updates      StatusUpdate[]
+  comments     Comment[]
+  upvotes      Upvote[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  resolvedAt   DateTime?
+}
+
+model StatusUpdate {
+  id          String   @id @default(uuid())
+  issueId     String
+  issue       Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  authorityId String
+  authority   User     @relation(fields: [authorityId], references: [id])
+  status      Status
+  note        String
+  createdAt   DateTime @default(now())
+}
+
+model Comment {
+  id        String     @id @default(uuid())
+  issueId   String
+  issue     Issue      @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User       @relation(fields: [userId], references: [id])
+  content   String
+  sentiment Sentiment?
+  createdAt DateTime   @default(now())
+}
+
+model Upvote {
+  id        String   @id @default(uuid())
+  issueId   String
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([issueId, userId])
+}
