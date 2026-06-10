@@ -49,7 +49,7 @@ function FlyToLocation({ center }) {
 }
 
 export default function IssueMap({ issues = [], center, height = '500px', onMarkerClick }) {
-  const defaultCenter = [12.9716, 77.5946] // Bangalore
+  const defaultCenter = [18.51, 73.85] // Bangalore
 
   return (
     <div style={{ height }} className="rounded-2xl overflow-hidden border border-gray-700/50">
