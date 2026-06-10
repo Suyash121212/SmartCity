@@ -25,6 +25,8 @@ export default function Navbar() {
   const navLinks = [
     { to: '/', label: 'Live Feed' },
     { to: '/map', label: 'Issue Map' },
+    { to: '/how-it-works', label: 'How It Works' },
+    { to: '/about', label: 'About' },
   ]
 
   const isActive = (path) => location.pathname === path

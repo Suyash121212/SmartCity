@@ -5,8 +5,9 @@ import StatusBadge from '../ui/StatusBadge'
 import PriorityBadge from '../ui/PriorityBadge'
 import { CATEGORY_CONFIG, timeAgo } from '../../lib/utils'
 
-export default function IssueCard({ issue, index = 0, onUpvote, isUpvoted }) {
+export default function IssueCard({ issue, index = 0, onUpvote, isUpvoted, disableLink }) {
   const cat = CATEGORY_CONFIG[issue.category] || CATEGORY_CONFIG.OTHER
+  const LinkOrDiv = disableLink ? 'div' : Link
 
   return (
     <motion.div
@@ -47,11 +48,11 @@ export default function IssueCard({ issue, index = 0, onUpvote, isUpvoted }) {
         </div>
 
         {/* Title */}
-        <Link to={`/issues/${issue.id}`}>
+        <LinkOrDiv to={disableLink ? undefined : `/issues/${issue.id}`}>
           <h3 className="font-semibold text-white text-sm leading-snug mb-1.5 group-hover:text-blue-400 transition-colors line-clamp-2">
             {issue.title}
           </h3>
-        </Link>
+        </LinkOrDiv>
 
         {/* Description */}
         <p className="text-gray-500 text-xs leading-relaxed line-clamp-2 mb-3">
@@ -86,10 +87,10 @@ export default function IssueCard({ issue, index = 0, onUpvote, isUpvoted }) {
             </button>
 
             {/* Comments */}
-            <Link to={`/issues/${issue.id}`} className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors">
+            <LinkOrDiv to={disableLink ? undefined : `/issues/${issue.id}`} className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors">
               <MessageSquare size={13} />
               {issue._count?.comments || 0}
-            </Link>
+            </LinkOrDiv>
           </div>
 
           {/* Reporter */}
@@ -98,9 +99,9 @@ export default function IssueCard({ issue, index = 0, onUpvote, isUpvoted }) {
               {issue.user?.name?.[0]?.toUpperCase() || '?'}
             </div>
             <span className="text-xs text-gray-600 max-w-20 truncate">{issue.user?.name}</span>
-            <Link to={`/issues/${issue.id}`} className="text-gray-600 hover:text-blue-400 transition-colors">
+            <LinkOrDiv to={disableLink ? undefined : `/issues/${issue.id}`} className="text-gray-600 hover:text-blue-400 transition-colors">
               <ChevronRight size={14} />
-            </Link>
+            </LinkOrDiv>
           </div>
         </div>
       </div>

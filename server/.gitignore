@@ -4,3 +4,4 @@ node_modules
 
 /generated/prisma
 src/seed.js
+test-gemini.js

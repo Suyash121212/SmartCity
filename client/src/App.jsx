@@ -13,6 +13,9 @@ import Register from './pages/Register'
 import CompleteProfile from './pages/CompleteProfile'
 import ReportIssue from './pages/ReportIssue'
 import IssueDetail from './pages/IssueDetail'
+import DemoIssueDetail from './pages/DemoIssueDetail'
+import HowItWorks from './pages/HowItWorks'
+import About from './pages/About'
 import MyIssues from './pages/MyIssues'
 import MapView from './pages/MapView'
 import AuthDashboard from './pages/AuthDashboard'
@@ -76,7 +79,10 @@ function AppRoutes() {
         {/* Public */}
         <Route path="/" element={<Home />} />
         <Route path="/map" element={<MapView />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
+        <Route path="/about" element={<About />} />
         <Route path="/issues/:id" element={<IssueDetail />} />
+        <Route path="/demo/:slug" element={<DemoIssueDetail />} />
 
         {/* Guest only */}
         <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />

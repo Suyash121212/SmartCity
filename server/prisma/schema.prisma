@@ -4,7 +4,110 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+}
+
+model City {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  issues    Issue[]
+  users     User[]
+  zones     Zone[]
+}
+
+model Zone {
+  id        String   @id @default(uuid())
+  name      String
+  cityId    String
+  createdAt DateTime @default(now())
+  issues    Issue[]
+  users     User[]
+  city      City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@unique([cityId, name])
+}
+
+model User {
+  id                 String         @id @default(uuid())
+  name               String
+  email              String         @unique
+  password           String
+  role               Role           @default(CITIZEN)
+  cityId             String?
+  zoneId             String?
+  department         String?
+  avatar             String?
+  refreshToken       String?
+  profileComplete    Boolean        @default(false)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  mustChangePassword Boolean        @default(false)
+  comments           Comment[]
+  issues             Issue[]
+  statusUpdates      StatusUpdate[]
+  upvotes            Upvote[]
+  city               City?          @relation(fields: [cityId], references: [id])
+  zone               Zone?          @relation(fields: [zoneId], references: [id])
+}
+
+model Issue {
+  id           String         @id @default(uuid())
+  title        String
+  description  String
+  category     Category
+  priority     Priority       @default(LOW)
+  status       Status         @default(REPORTED)
+  photoUrl     String?
+  lat          Float
+  lng          Float
+  aiAnalysis   Json?
+  upvoteCount  Int            @default(0)
+  userId       String
+  cityId       String?
+  zoneId       String?
+  assignedToId String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  resolvedAt   DateTime?
+  comments     Comment[]
+  city         City?          @relation(fields: [cityId], references: [id])
+  user         User           @relation(fields: [userId], references: [id])
+  zone         Zone?          @relation(fields: [zoneId], references: [id])
+  updates      StatusUpdate[]
+  upvotes      Upvote[]
+}
+
+model StatusUpdate {
+  id          String   @id @default(uuid())
+  issueId     String
+  authorityId String
+  status      Status
+  note        String
+  createdAt   DateTime @default(now())
+  authority   User     @relation(fields: [authorityId], references: [id])
+  issue       Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String     @id @default(uuid())
+  issueId   String
+  userId    String
+  content   String
+  sentiment Sentiment?
+  createdAt DateTime   @default(now())
+  issue     Issue      @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id])
+}
+
+model Upvote {
+  id        String   @id @default(uuid())
+  issueId   String
+  userId    String
+  createdAt DateTime @default(now())
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([issueId, userId])
 }
 
 enum Role {
@@ -41,108 +144,4 @@ enum Sentiment {
   NEUTRAL
   NEGATIVE
   FRUSTRATED
-}
-
-model City {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  zones     Zone[]
-  users     User[]
-  issues    Issue[]
-}
-
-model Zone {
-  id        String   @id @default(uuid())
-  name      String
-  cityId    String
-  city      City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  users     User[]
-  issues    Issue[]
-
-  @@unique([cityId, name])
-}
-
-model User {
-  id            String         @id @default(uuid())
-  name          String
-  email         String         @unique
-  password      String
-  role          Role           @default(CITIZEN)
-  cityId        String?
-  city          City?          @relation(fields: [cityId], references: [id])
-  zoneId        String?
-  zone          Zone?          @relation(fields: [zoneId], references: [id])
-  department    String?
-  avatar        String?
-  refreshToken  String?
-  profileComplete Boolean      @default(false)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  issues        Issue[]
-  comments      Comment[]
-  upvotes       Upvote[]
-  statusUpdates StatusUpdate[]
-  mustChangePassword Boolean @default(false)
-}
-
-model Issue {
-  id           String         @id @default(uuid())
-  title        String
-  description  String
-  category     Category
-  priority     Priority       @default(LOW)
-  status       Status         @default(REPORTED)
-  photoUrl     String?
-  lat          Float
-  lng          Float
-  aiAnalysis   Json?
-  upvoteCount  Int            @default(0)
-  userId       String
-  user         User           @relation(fields: [userId], references: [id])
-  cityId       String?
-  city         City?          @relation(fields: [cityId], references: [id])
-  zoneId       String?
-  zone         Zone?          @relation(fields: [zoneId], references: [id])
-  assignedToId String?
-  updates      StatusUpdate[]
-  comments     Comment[]
-  upvotes      Upvote[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  resolvedAt   DateTime?
-}
-
-model StatusUpdate {
-  id          String   @id @default(uuid())
-  issueId     String
-  issue       Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
-  authorityId String
-  authority   User     @relation(fields: [authorityId], references: [id])
-  status      Status
-  note        String
-  createdAt   DateTime @default(now())
-}
-
-model Comment {
-  id        String     @id @default(uuid())
-  issueId   String
-  issue     Issue      @relation(fields: [issueId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User       @relation(fields: [userId], references: [id])
-  content   String
-  sentiment Sentiment?
-  createdAt DateTime   @default(now())
-}
-
-model Upvote {
-  id        String   @id @default(uuid())
-  issueId   String
-  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-
-  @@unique([issueId, userId])
 }

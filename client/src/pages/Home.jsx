@@ -6,76 +6,18 @@ import {
   Brain,
   MapPinned,
   ArrowRight,
-  CheckCircle2,
 } from 'lucide-react'
 
 import IssueCard from '../components/IssueCard/IssueCard'
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { DEMO_ISSUES } from '../data/demoIssues'
 
-const sampleIssues = [
-  {
-    id: '1',
-    title: 'Large Water-Filled Pothole',
-    description:
-      'A large pothole filled with water is causing traffic disruption and safety hazards.',
-    category: 'ROAD',
-    priority: 'HIGH',
-    status: 'REPORTED',
-    createdAt: new Date(),
-    imageUrl:
-      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop',
-    locationText: 'MG Road, Pune',
-    user: {
-      name: 'Rahul',
-    },
-    _count: {
-      upvotes: 12,
-      comments: 4,
-    },
-  },
-
-  {
-    id: '2',
-    title: 'Damaged Streetlight',
-    description:
-      'Streetlights are hanging dangerously and creating visibility issues at night.',
-    category: 'ELECTRICITY',
-    priority: 'MEDIUM',
-    status: 'IN_PROGRESS',
-    createdAt: new Date(),
-    imageUrl:
-      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop',
-    locationText: 'FC Road, Pune',
-    user: {
-      name: 'Aman',
-    },
-    _count: {
-      upvotes: 8,
-      comments: 2,
-    },
-  },
-
-  {
-    id: '3',
-    title: 'Garbage Overflow Near Market',
-    description:
-      'Garbage bins are overflowing and spreading waste across the roadside.',
-    category: 'SANITATION',
-    priority: 'LOW',
-    status: 'RESOLVED',
-    createdAt: new Date(),
-    imageUrl:
-      'https://images.unsplash.com/photo-1528323273322-d81458248d40?q=80&w=1200&auto=format&fit=crop',
-    locationText: 'Kothrud, Pune',
-    user: {
-      name: 'Sneha',
-    },
-    _count: {
-      upvotes: 5,
-      comments: 1,
-    },
-  },
-]
+// Map demo issues to IssueCard-compatible shape with demo links
+const sampleIssues = DEMO_ISSUES.slice(0, 3).map(issue => ({
+  ...issue,
+  // Override the id so IssueCard links to /demo/:slug instead of /issues/:id
+  _demoSlug: issue.slug,
+}))
 
 const stats = [
   {
@@ -135,19 +77,18 @@ export default function Home() {
 
               <div className="flex flex-wrap gap-4">
 
-                <Link to ='/report'  >
+              <Link to="/report">
                 <button className="px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 transition-all font-semibold flex items-center gap-2">
                   Report an Issue
                   <ArrowRight size={18} />
                 </button>
-                </Link>
-                
+              </Link>
 
-              <Link to="/map">
+              <Link to="/how-it-works">
                 <button className="px-7 py-3 rounded-xl border border-gray-700 hover:border-blue-500 hover:bg-blue-500/5 transition-all font-semibold">
-                  View Issue Map
+                  How It Works
                 </button>
-                </Link>
+              </Link>
 
               </div>
             </motion.div>
@@ -289,11 +230,13 @@ export default function Home() {
               <div className="grid sm:grid-cols-2 gap-5">
 
                 {sampleIssues.map((issue, i) => (
-                  <IssueCard
-                    key={issue.id}
-                    issue={issue}
-                    index={i}
-                  />
+                  <Link key={issue.id} to={`/demo/${issue._demoSlug}`}>
+                    <IssueCard
+                      issue={issue}
+                      index={i}
+                      disableLink
+                    />
+                  </Link>
                 ))}
 
               </div>
@@ -306,7 +249,7 @@ export default function Home() {
               <div className="flex items-center justify-between mb-6">
 
                 <h2 className="text-3xl font-black">
-                  Sample Issue Map
+                  Sample Issue Map  
                 </h2>
                 <Link to="/map">
                 <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">
@@ -316,12 +259,12 @@ export default function Home() {
 
               </div>
 
-              <div className="relative overflow-hidden rounded-3xl border border-white/10 h-full min-h-[420px]">
+              <div className="relative overflow-hidden rounded-3xl border border-white/10 min-h-[300px]">
 
                 <img
                   src="/images/static_map.png"
                   alt="Map"
-                  className="w-full h-full object-cover"
+                 className="w-full h-48 md:h-64 lg:h-80 object-cover"
                 />
 
                 <div className="absolute inset-0 bg-black/30" />
@@ -399,10 +342,10 @@ export default function Home() {
               </h4>
 
               <div className="space-y-2 text-gray-400 text-sm">
-                <p>About</p>
-                <p>Issues</p>
-                <p>Issue Map</p>
-                <p>Dashboard</p>
+                <Link to="/about" className="block hover:text-white transition-colors">About</Link>
+                <Link to="/" className="block hover:text-white transition-colors">Issues</Link>
+                <Link to="/map" className="block hover:text-white transition-colors">Issue Map</Link>
+                <Link to="/dashboard" className="block hover:text-white transition-colors">Dashboard</Link>
               </div>
             </div>
 
@@ -412,8 +355,8 @@ export default function Home() {
               </h4>
 
               <div className="space-y-2 text-gray-400 text-sm">
-                <p>Help Center</p>
-                <p>Guidelines</p>
+                <Link to="/how-it-works" className="block hover:text-white transition-colors">How It Works</Link>
+                <Link to="/how-it-works" className="block hover:text-white transition-colors">Guidelines</Link>
                 <p>Privacy Policy</p>
                 <p>Terms</p>
               </div>
@@ -425,7 +368,9 @@ export default function Home() {
               </h4>
 
               <div className="space-y-2 text-gray-400 text-sm">
-                <p>support@smartcity.gov</p>
+                <a href="mailto:smartcity.portal.admin@gmail.com" className="block hover:text-white transition-colors">
+                  smartcity.portal.admin@gmail.com
+                </a>
                 <p>Pune Smart City Office</p>
               </div>
             </div>
